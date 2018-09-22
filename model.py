@@ -34,8 +34,8 @@ class Model(object):
             softmax_b = tf.get_variable("softmax_b", [args.vocab_size])
             with tf.device("/cpu:0"):
                 embedding = tf.get_variable("embedding", [args.vocab_size, args.rnn_size])
-                inputs = tf.split(axis=1, num_or_size_splits=args.seq_length,
-                                  value=tf.nn.embedding_lookup(embedding, self.input_data))
+                inputs = tf.nn.embedding_lookup(embedding, self.input_data)
+                inputs = tf.split(inputs, args.seq_length, axis=1)
                 inputs = [tf.squeeze(input_, [1]) for input_ in inputs]
 
         def loop(prev, _):
