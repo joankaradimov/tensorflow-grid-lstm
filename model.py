@@ -21,7 +21,7 @@ class Model(object):
             cell_fn = rnn_cell.BasicLSTMCell
         elif args.model == 'gridlstm':
             cell_fn = grid_rnn.Grid2LSTMCell
-            additional_cell_args.update({'use_peepholes': True, 'forget_bias': 1.0})
+            additional_cell_args.update({'use_peepholes': True, 'forget_bias': 1.0, 'output_is_tuple': False})
         elif args.model == 'gridgru':
             cell_fn = grid_rnn.Grid2GRUCell
         else:
