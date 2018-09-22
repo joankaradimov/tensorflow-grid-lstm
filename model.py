@@ -7,7 +7,6 @@ from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
 
 class Model(object):
     def __init__(self, args, infer=False):
-        self.args = args
         if infer:
             args.batch_size = 1
             args.seq_length = 1
