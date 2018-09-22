@@ -11,28 +11,23 @@ class Model(object):
             args.batch_size = 1
             args.seq_length = 1
 
-        additional_cell_args = {}
         if args.model == 'rnn':
-            cell_fn = rnn_cell.BasicRNNCell
+            cell = rnn_cell.BasicRNNCell(args.rnn_size)
         elif args.model == 'gru':
-            cell_fn = rnn_cell.GRUCell
+            cell = rnn_cell.GRUCell(args.rnn_size)
         elif args.model == 'lstm':
-            cell_fn = rnn_cell.BasicLSTMCell
+            cell = rnn_cell.BasicLSTMCell(args.rnn_size)
         elif args.model == 'gridlstm':
-            cell_fn = grid_rnn.Grid2LSTMCell
-            additional_cell_args.update({'use_peepholes': True, 'forget_bias': 1.0, 'output_is_tuple': False})
+            cell = grid_rnn.Grid2LSTMCell(args.rnn_size, output_is_tuple = False, use_peepholes = True, forget_bias = 1.0)
         elif args.model == 'gridgru':
-            cell_fn = grid_rnn.Grid2GRUCell
+            cell = grid_rnn.Grid2GRUCell(args.rnn_size, output_is_tuple = False)
         else:
             raise Exception("model type not supported: {}".format(args.model))
 
-        cell = cell_fn(args.rnn_size, **additional_cell_args)
-
-        self.cell = cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
-
+        self.cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
         self.input_data = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.targets = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
-        self.initial_state = cell.zero_state(args.batch_size, tf.float32)
+        self.initial_state = self.cell.zero_state(args.batch_size, tf.float32)
 
         with tf.variable_scope('rnnlm'):
             softmax_w = tf.get_variable("softmax_w", [args.rnn_size, args.vocab_size])
@@ -48,7 +43,7 @@ class Model(object):
             prev_symbol = tf.stop_gradient(tf.argmax(prev, 1))
             return tf.nn.embedding_lookup(embedding, prev_symbol)
 
-        outputs, last_state = seq2seq.rnn_decoder(inputs, self.initial_state, cell,
+        outputs, last_state = seq2seq.rnn_decoder(inputs, self.initial_state, self.cell,
                                                   loop_function=loop if infer else None, scope='rnnlm')
         # output = tf.reshape(tf.concat(1, outputs), [-1, args.rnn_size])
         output = tf.reshape(tf.concat(axis=1, values=outputs), [-1, args.rnn_size])
