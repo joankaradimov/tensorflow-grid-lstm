@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from tensorflow.contrib import grid_rnn
-from tensorflow.contrib import rnn as rnn_cell
+from tensorflow.contrib import grid_rnn, rnn
 from tensorflow.contrib.legacy_seq2seq.python.ops import seq2seq
 
 
@@ -12,11 +11,11 @@ class Model(object):
             args.seq_length = 1
 
         if args.model == 'rnn':
-            cell = rnn_cell.BasicRNNCell(args.rnn_size)
+            cell = rnn.BasicRNNCell(args.rnn_size)
         elif args.model == 'gru':
-            cell = rnn_cell.GRUCell(args.rnn_size)
+            cell = rnn.GRUCell(args.rnn_size)
         elif args.model == 'lstm':
-            cell = rnn_cell.BasicLSTMCell(args.rnn_size)
+            cell = rnn.BasicLSTMCell(args.rnn_size)
         elif args.model == 'gridlstm':
             cell = grid_rnn.Grid2LSTMCell(args.rnn_size, output_is_tuple = False, use_peepholes = True, forget_bias = 1.0)
         elif args.model == 'gridgru':
@@ -24,7 +23,7 @@ class Model(object):
         else:
             raise Exception("model type not supported: {}".format(args.model))
 
-        self.cell = rnn_cell.MultiRNNCell([cell] * args.num_layers)
+        self.cell = rnn.MultiRNNCell([cell] * args.num_layers)
         self.input_data = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.targets = tf.placeholder(tf.int32, [args.batch_size, args.seq_length])
         self.initial_state = self.cell.zero_state(args.batch_size, tf.float32)
