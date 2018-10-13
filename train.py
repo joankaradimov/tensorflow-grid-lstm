@@ -58,6 +58,7 @@ def train(args):
         saver = tf.train.Saver(tf.global_variables())
         train_loss_iterations = {'iteration': [], 'epoch': [], 'train_loss': [], 'val_loss': []}
 
+        batch_idx = 0
         for e in range(args.num_epochs):
             sess.run(tf.assign(model.lr, args.learning_rate * (args.decay_rate ** e)))
             data_loader.reset_batch_pointer()
@@ -68,7 +69,8 @@ def train(args):
                 feed = {model.input_data: x, model.targets: y, model.initial_state: state}
                 train_loss, state, _ = sess.run([model.cost, model.final_state, model.train_op], feed)
                 end = time.time()
-                batch_idx = e * data_loader.num_batches + b
+                batch_idx += 1
+
                 print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}" \
                       .format(batch_idx,
                               args.num_epochs * data_loader.num_batches,
@@ -90,7 +92,7 @@ def train(args):
                     train_loss_iterations['val_loss'].append(avg_val_loss)
 
                     checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
-                    saver.save(sess, checkpoint_path, global_step=e * data_loader.num_batches + b)
+                    saver.save(sess, checkpoint_path, global_step=batch_idx)
                     print("model saved to {}".format(checkpoint_path))
                 else:
                     train_loss_iterations['val_loss'].append(None)
