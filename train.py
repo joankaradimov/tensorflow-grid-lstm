@@ -71,10 +71,9 @@ def train(args):
                 end = time.time()
                 batch_idx += 1
 
-                print("{}/{} (epoch {}), train_loss = {:.3f}, time/batch = {:.3f}" \
-                      .format(batch_idx,
-                              args.num_epochs * data_loader.num_batches,
-                              e, train_loss, end - start))
+                print("{}/{} (epoch {}), "
+                      "train_loss = {:.3f}, "
+                      "time/batch = {:.3f}".format(batch_idx, args.num_epochs * data_loader.num_batches, e, train_loss, end - start))
                 train_loss_iterations['iteration'].append(batch_idx)
                 train_loss_iterations['epoch'].append(e)
                 train_loss_iterations['train_loss'].append(train_loss)
