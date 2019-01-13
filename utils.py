@@ -8,7 +8,6 @@ import numpy as np
 
 class TextLoader(object):
     def __init__(self, data_dir, batch_size, seq_length):
-        self.data_dir = data_dir
         self.batch_size = batch_size
         self.seq_length = seq_length
 
