@@ -14,22 +14,22 @@ class TextLoader(object):
         input_file = os.path.join(data_dir, "input.txt")
         tensor_file = os.path.join(data_dir, "data.npy")
 
-        if not os.path.exists(tensor_file):
-            print("reading text file")
-            self.preprocess(input_file, tensor_file)
-        else:
-            print("loading preprocessed files")
+        if os.path.exists(tensor_file):
             self.load_preprocessed(tensor_file)
+        else:
+            self.preprocess(input_file, tensor_file)
         self.create_batches()
         self.reset_batch_pointer()
 
     def preprocess(self, input_file, tensor_file):
+        print("reading text file")
         with codecs.open(input_file, "r") as f:
             data = f.read()
         self.tensor = np.array(list(map(ord, data)))
         np.save(tensor_file, self.tensor)
 
     def load_preprocessed(self, tensor_file):
+        print("loading preprocessed files")
         self.tensor = np.load(tensor_file)
         self.num_batches = self.tensor.size // (self.batch_size * self.seq_length)
 
