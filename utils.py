@@ -12,36 +12,24 @@ class TextLoader(object):
         self.seq_length = seq_length
 
         input_file = os.path.join(data_dir, "input.txt")
-        vocab_file = os.path.join(data_dir, "vocab.pkl")
         tensor_file = os.path.join(data_dir, "data.npy")
 
-        if not (os.path.exists(vocab_file) and os.path.exists(tensor_file)):
+        if not os.path.exists(tensor_file):
             print("reading text file")
-            self.preprocess(input_file, vocab_file, tensor_file)
+            self.preprocess(input_file, tensor_file)
         else:
             print("loading preprocessed files")
-            self.load_preprocessed(vocab_file, tensor_file)
+            self.load_preprocessed(tensor_file)
         self.create_batches()
         self.reset_batch_pointer()
 
-    def preprocess(self, input_file, vocab_file, tensor_file):
+    def preprocess(self, input_file, tensor_file):
         with codecs.open(input_file, "r") as f:
             data = f.read()
-        counter = collections.Counter(data)
-        count_pairs = sorted(counter.items(), key=lambda x: -x[1])
-        self.chars, _ = list(zip(*count_pairs))
-        self.vocab_size = len(self.chars)
-        self.vocab = dict(zip(self.chars, range(len(self.chars))))
-        with open(vocab_file, 'wb') as f:
-            pickle.dump(self.chars, f)
-        self.tensor = np.array(list(map(self.vocab.get, data)))
+        self.tensor = np.array(list(map(ord, data)))
         np.save(tensor_file, self.tensor)
 
-    def load_preprocessed(self, vocab_file, tensor_file):
-        with open(vocab_file, 'rb') as f:
-            self.chars = pickle.load(f)
-        self.vocab_size = len(self.chars)
-        self.vocab = dict(zip(self.chars, range(len(self.chars))))
+    def load_preprocessed(self, tensor_file):
         self.tensor = np.load(tensor_file)
         self.num_batches = self.tensor.size // (self.batch_size * self.seq_length)
 
