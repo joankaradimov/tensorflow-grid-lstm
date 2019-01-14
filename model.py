@@ -62,12 +62,11 @@ class Model(object):
         self.train_op = optimizer.apply_gradients(zip(grads, tvars))
 
     def sample(self, sess, num=200, prime='The '):
+        prime = list(map(ord, prime))
         state = sess.run(self.cell.zero_state(1, tf.float32))
         for char in prime[:-1]:
-            x = np.zeros((1, 1))
-            x[0, 0] = ord(char)
             [state] = sess.run([self.final_state], {
-                self.input_data: x,
+                self.input_data: np.array([[char]]),
                 self.initial_state: state,
             })
 
@@ -79,19 +78,14 @@ class Model(object):
         def random_pick(prob):
             return int(np.random.choice(len(prob), p=prob))
 
-        ret = prime
-        char = prime[-1]
+        ret = prime[:]
+        sample = ret[-1]
         for n in range(num):
-            x = np.zeros((1, 1))
-            x[0, 0] = ord(char)
             [probs, state] = sess.run([self.probs, self.final_state], {
-                self.input_data: x,
+                self.input_data: np.array([[sample]]),
                 self.initial_state: state,
             })
-            p = probs[0]
-            # sample = random_pick(p)
-            sample = weighted_pick(p)
-            pred = chr(sample)
-            ret += pred
-            char = pred
-        return ret
+            # sample = random_pick(probs[0])
+            sample = weighted_pick(probs[0])
+            ret.append(sample)
+        return ''.join(map(chr, ret))
