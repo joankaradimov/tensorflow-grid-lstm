@@ -74,6 +74,9 @@ class Model(object):
             s = np.sum(weights)
             return (int(np.searchsorted(t, np.random.rand(1) * s)))
 
+        def random_pick(prob):
+            return int(np.random.choice(len(prob), p=prob))
+
         ret = prime
         char = prime[-1]
         for n in range(num):
@@ -82,7 +85,7 @@ class Model(object):
             feed = {self.input_data: x, self.initial_state: state}
             [probs, state] = sess.run([self.probs, self.final_state], feed)
             p = probs[0]
-            # sample = int(np.random.choice(len(p), p=p))
+            # sample = random_pick(p)
             sample = weighted_pick(p)
             pred = chr(sample)
             ret += pred
