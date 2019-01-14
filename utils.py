@@ -11,12 +11,12 @@ class TextLoader(object):
         self.batch_size = batch_size
         self.seq_length = seq_length
 
-        input_file = os.path.join(data_dir, "input.txt")
         tensor_file = os.path.join(data_dir, "data.npy")
 
         if os.path.exists(tensor_file):
             self.load_preprocessed(tensor_file)
         else:
+            input_file = os.path.join(data_dir, "input.txt")
             self.preprocess(input_file, tensor_file)
         self.create_batches()
         self.reset_batch_pointer()
