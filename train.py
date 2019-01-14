@@ -52,6 +52,7 @@ def train(args):
 
     with tf.Session() as sess:
         tf.global_variables_initializer().run()
+        checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
         saver = tf.train.Saver(tf.global_variables())
         train_loss_iterations = {'iteration': [], 'epoch': [], 'train_loss': [], 'val_loss': []}
 
@@ -87,7 +88,6 @@ def train(args):
                     print('val_loss: {:.3f}'.format(avg_val_loss))
                     train_loss_iterations['val_loss'].append(avg_val_loss)
 
-                    checkpoint_path = os.path.join(args.save_dir, 'model.ckpt')
                     saver.save(sess, checkpoint_path, global_step=batch_idx)
                     print("model saved to {}".format(checkpoint_path))
                 else:
@@ -95,6 +95,9 @@ def train(args):
 
             pd.DataFrame(data=train_loss_iterations,
                          columns=train_loss_iterations.keys()).to_csv(os.path.join(args.save_dir, 'log.csv'))
+
+        saver.save(sess, checkpoint_path, global_step=batch_idx)
+        print("model saved to {}".format(checkpoint_path))
 
 
 if __name__ == '__main__':
