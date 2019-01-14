@@ -66,8 +66,10 @@ class Model(object):
         for char in prime[:-1]:
             x = np.zeros((1, 1))
             x[0, 0] = ord(char)
-            feed = {self.input_data: x, self.initial_state: state}
-            [state] = sess.run([self.final_state], feed)
+            [state] = sess.run([self.final_state], {
+                self.input_data: x,
+                self.initial_state: state,
+            })
 
         def weighted_pick(weights):
             t = np.cumsum(weights)
@@ -82,8 +84,10 @@ class Model(object):
         for n in range(num):
             x = np.zeros((1, 1))
             x[0, 0] = ord(char)
-            feed = {self.input_data: x, self.initial_state: state}
-            [probs, state] = sess.run([self.probs, self.final_state], feed)
+            [probs, state] = sess.run([self.probs, self.final_state], {
+                self.input_data: x,
+                self.initial_state: state,
+            })
             p = probs[0]
             # sample = random_pick(p)
             sample = weighted_pick(p)
