@@ -1,9 +1,8 @@
 import codecs
 import collections
+import numpy as np
 import os
 import pickle
-
-import numpy as np
 
 
 class TextLoader(object):

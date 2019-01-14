@@ -77,7 +77,6 @@ def train(args):
                 train_loss_iterations['train_loss'].append(train_loss)
 
                 if batch_idx % args.save_every == 0:
-
                     # evaluate
                     state_val = sess.run(model.initial_state)
                     avg_val_loss = 0
